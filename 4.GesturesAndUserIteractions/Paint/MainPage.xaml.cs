@@ -19,29 +19,57 @@ namespace Paint
 
         private Figures chosenFigure;
         private int chosenSize;
-        private Brush fillStyle;
         private List<Color> colors;
         private int chosenColor;
+        private RotateTransform colorsRotation;
 
         public MainPage()
         {
             this.InitializeComponent();
-            this.chosenSize = MaximumSize / 2;
-            this.chosenFigure = Figures.Line;
+            this.ChosenSize = MaximumSize / 2;
+            this.chosenFigure = Figures.Rectangle;
             this.InitializeColors();
             this.FillDemoCanvas();
+            this.colorsRotation = new RotateTransform();
+            this.RotatingColors.RenderTransform = this.colorsRotation;
         }
         
+        public Brush FillStyle
+        {
+            get
+            {
+                return new SolidColorBrush(this.colors[this.chosenColor]);
+            }
+        }
+
+        public int ChosenSize
+        {
+            get
+            {
+                return this.chosenSize;
+            }
+            set
+            {
+                if (value > MaximumSize)
+                {
+                    value = MaximumSize;
+                }
+                if (value < MinimumSize)
+                {
+                    value = MinimumSize;
+                }
+                this.chosenSize = value;                
+            }
+        }
+
         private void InitializeColors()
         {
             this.colors = new List<Color>();
             this.chosenColor = 0;
-            this.colors.Add(Colors.Aquamarine);
-            this.colors.Add(Colors.PaleVioletRed);
-            this.colors.Add(Colors.Plum);
+            this.colors.Add(Colors.Red);
             this.colors.Add(Colors.Black);
-
-            this.fillStyle = new SolidColorBrush(this.colors[this.chosenColor]);
+            this.colors.Add(Colors.Blue);
+            this.colors.Add(Colors.Green);
         }
                 
         #region Demo canvas methods
@@ -71,8 +99,6 @@ namespace Paint
         {
             if (this.DemoFigure != null)
             {
-
-
                 switch (this.chosenFigure)
                 {
                     case Figures.Elipse:
@@ -98,8 +124,9 @@ namespace Paint
             line.Y1 = 40 ;//+ (MaximumSize - this.chosenSize) / 2;
             line.X2 = 140;// - (MaximumSize - this.chosenSize) / 2;
             line.Y2 = 140;// -(MaximumSize - this.chosenSize) / 2;
-            line.Fill = new SolidColorBrush(this.colors[this.chosenColor]);
-            line.StrokeThickness = this.chosenSize / 20;
+            line.Fill = this.FillStyle;
+            line.Stroke = this.FillStyle;
+            line.StrokeThickness = this.ChosenSize / 20;
             this.DemoFigure.Children.Add(line);
         }
 
@@ -108,13 +135,13 @@ namespace Paint
             this.ClearDemoCanvas();
 
             var rect = new Rectangle();
-            rect.Fill = new SolidColorBrush(this.colors[this.chosenColor]);
+            rect.Fill = this.FillStyle;
             rect.StrokeThickness = 1.5;
-            rect.Width = this.chosenSize;
-            rect.Height = this.chosenSize;
+            rect.Width = this.ChosenSize;
+            rect.Height = this.ChosenSize;
             this.DemoFigure.Children.Add(rect);
-            Canvas.SetLeft(rect, 10 + (MaximumSize - this.chosenSize) / 2);
-            Canvas.SetTop(rect, 25 + (MaximumSize - this.chosenSize) / 2);
+            Canvas.SetLeft(rect, 10 + (MaximumSize - this.ChosenSize) / 2);
+            Canvas.SetTop(rect, 25 + (MaximumSize - this.ChosenSize) / 2);
         }
 
         private void ShowElipse()
@@ -122,13 +149,13 @@ namespace Paint
             this.ClearDemoCanvas();
 
             var elipse = new Ellipse();
-            elipse.Fill = new SolidColorBrush(this.colors[this.chosenColor]);
+            elipse.Fill = this.FillStyle;
             elipse.StrokeThickness = 1.5;
-            elipse.Width = this.chosenSize;
-            elipse.Height = this.chosenSize;
+            elipse.Width = this.ChosenSize;
+            elipse.Height = this.ChosenSize;
             this.DemoFigure.Children.Add(elipse);
-            Canvas.SetLeft(elipse, 10 + (MaximumSize - this.chosenSize) / 2);
-            Canvas.SetTop(elipse, 25 + (MaximumSize - this.chosenSize) / 2);
+            Canvas.SetLeft(elipse, 10 + (MaximumSize - this.ChosenSize) / 2);
+            Canvas.SetTop(elipse, 25 + (MaximumSize - this.ChosenSize) / 2);
         }
 
         private void ClearDemoCanvas()
@@ -143,7 +170,46 @@ namespace Paint
 
         private void Slider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
         {
-            this.chosenSize = (int)e.NewValue;
+            this.ChosenSize = (int)e.NewValue;
+            this.FillDemoCanvas();
+        }
+        
+        private void Canvas_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+        {
+            var canvas = sender as Canvas;
+            this.colorsRotation.CenterX = canvas.Width / 2;
+            this.colorsRotation.CenterY = canvas.Height / 2;
+            this.colorsRotation.Angle += e.Delta.Rotation;
+        }
+
+        private void RotatingColors_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
+        {
+            var angle = this.colorsRotation.Angle % 360;
+            if (angle >= 315 || angle < 45)
+            {
+                this.chosenColor = 0;
+            }
+            else if (angle >= 45 && angle < 135)
+            {
+                this.chosenColor = 1;
+            }
+            else if (angle >= 135 && angle < 225)
+            {
+                this.chosenColor = 2;
+            }
+            else
+            {
+                this.chosenColor = 3;
+            }
+
+            this.FillDemoCanvas();
+        }
+
+        private void DemoFigure_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+        {
+            var expansion = e.Delta.Expansion;
+            var scale = e.Delta.Scale;
+            this.ChosenSize += (int)e.Delta.Expansion;
             this.FillDemoCanvas();
         }
         #endregion
@@ -160,12 +226,12 @@ namespace Paint
             var figure = this.CreateFigure();
             if (this.chosenFigure != Figures.Line )
             {
-                figure.Fill = this.fillStyle;
-                figure.Width = this.chosenSize;
-                figure.Height = this.chosenSize;
+                figure.Fill = this.FillStyle;
+                figure.Width = this.ChosenSize;
+                figure.Height = this.ChosenSize;
                 canvas.Children.Add(figure);
-                Canvas.SetLeft(figure, positionInCanvas.Position.X - this.chosenSize / 2);
-                Canvas.SetTop(figure, positionInCanvas.Position.Y - this.chosenSize / 2);
+                Canvas.SetLeft(figure, positionInCanvas.Position.X - this.ChosenSize / 2);
+                Canvas.SetTop(figure, positionInCanvas.Position.Y - this.ChosenSize / 2);
             }
         }
 
@@ -181,18 +247,6 @@ namespace Paint
             }
             return null;
         }
-
-        
-
-        private void WhiteCanvas_RightTapped(object sender, RightTappedRoutedEventArgs e)
-        {
-            this.chosenColor++;
-            if (this.chosenColor >= ColorsCount)
-            {
-                this.chosenColor = 0;
-            }
-            this.fillStyle = new SolidColorBrush(this.colors[this.chosenColor]);
-            this.FillDemoCanvas();
-        }
+       
     }
 }
