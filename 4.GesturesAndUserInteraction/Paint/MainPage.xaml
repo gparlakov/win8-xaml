@@ -15,8 +15,7 @@
         <Canvas Grid.Column="0" 
                 x:Name="WhiteCanvas" 
                 Background="Wheat" 
-                PointerPressed="WhiteCanvas_PointerPressed"
-                RightTapped="WhiteCanvas_RightTapped"/>
+                PointerPressed="WhiteCanvas_PointerPressed"/>
         <StackPanel Grid.Column="1">
             <Canvas Height="50" Width="150">
                 <Ellipse PointerPressed="Figure_PointerPressed"
@@ -34,18 +33,20 @@
                            Fill="Aqua"
                            Width="20"
                            Height="20"/>
-                <Line PointerPressed="Figure_PointerPressed"
+                <!--<Line PointerPressed="Figure_PointerPressed"
                       Canvas.Left="125"
                       Canvas.Top="25"
                       Stroke="AliceBlue"
                       StrokeThickness="5"
                       X1="0" Y1="0"
-                      X2="20" Y2="20"/>
+                      X2="20" Y2="20"/>-->
             </Canvas>
             <Canvas x:Name="DemoFigure"
                     Width="150"
                     Height="200"
-                    Background="Gray">
+                    Background="Gray"
+                    ManipulationMode="All"
+                    ManipulationDelta="DemoFigure_ManipulationDelta">
                 <TextBlock Canvas.Left="40">Figure To Draw</TextBlock>
                 <Ellipse Canvas.Left="10"
                          Canvas.Top="25"
@@ -58,7 +59,56 @@
                     Value="65"
                     ValueChanged="Slider_ValueChanged"                   
                     Orientation="Horizontal"/>
-            <TextBlock TextWrapping="Wrap" FontSize="20">Choose shape from shapes above. Choose size with slider. Right click on canvas to change color. Left click to paint.</TextBlock>
+            <TextBlock TextWrapping="Wrap" 
+                       FontSize="20">
+                SHAPE - from shapes above.
+                Left click on canvas to paint.
+            </TextBlock>
+            <TextBlock TextWrapping="Wrap" 
+                       FontSize="20">
+                SIZE - touch-scale over figure above or with slider.
+            </TextBlock>
+            <TextBlock TextWrapping="Wrap" 
+                       FontSize="20">
+                COLOR - rotate color-elipse.
+            </TextBlock>
+            <Canvas Width="200" 
+                    Height="200"
+                    ManipulationMode="All"
+                    ManipulationDelta="Canvas_ManipulationDelta"
+                    ManipulationCompleted="RotatingColors_ManipulationCompleted"
+                    x:Name="RotatingColors">
+                <Ellipse Canvas.Left="0" 
+                         Canvas.Top="0"
+                         Width="200"
+                         Height="200"
+                         Fill="Wheat">                    
+                </Ellipse>
+                <Ellipse Canvas.Top="0"
+                         Canvas.Left="75"
+                         Width="50"
+                         Height="50"
+                         Fill="Red"/>
+                <Ellipse Canvas.Top="75"
+                         Canvas.Left="150"
+                         Width="50"
+                         Height="50"
+                         Fill="Green"/>
+                <Ellipse Canvas.Top="150"
+                         Canvas.Left="75"
+                         Width="50"
+                         Height="50"
+                         Fill="Blue"/>
+                <Ellipse Canvas.Top="75"
+                         Canvas.Left="0"
+                         Width="50"
+                         Height="50"
+                         Fill="Black"/>
+            </Canvas>
+            <StackPanel Orientation="Horizontal">
+                <Button Click="SaveButton_Click">Save</Button>
+                <Button Click="LoadButton_Click">Load</Button>
+            </StackPanel>
         </StackPanel>
         
     </Grid>
