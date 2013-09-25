@@ -5,8 +5,8 @@ namespace Paint
 {
     public enum Figures
     {
-        Ellipse ,
-        Rectangle ,
+        Ellipse,
+        Rectangle,
         Line 
     }
 }
