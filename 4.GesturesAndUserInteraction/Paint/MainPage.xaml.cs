@@ -326,7 +326,6 @@ namespace Paint
 
             return JsonConvert.SerializeObject(figures);
         }
-
         #endregion
 
         #region Load methods
