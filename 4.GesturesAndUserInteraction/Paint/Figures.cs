@@ -7,6 +7,6 @@ namespace Paint
     {
         Ellipse,
         Rectangle,
-        Line 
+        Line
     }
 }
